@@ -70,6 +70,7 @@ jobs:
       - name: Build frontend for GitHub Pages
         env:
           GITHUB_ACTIONS: true
+          VITE_GITHUB_PAGES_DOMAIN: ubtkdmis.github.io
         run: npm run build -w client
 
       - name: Upload Pages artifact
