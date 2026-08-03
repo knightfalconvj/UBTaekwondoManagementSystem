@@ -33,7 +33,6 @@ jobs:
       - name: Build frontend for GitHub Pages
         env:
           GITHUB_ACTIONS: true
-          VITE_BASE_PATH: /ubtkdmis.github.io/
         run: npm run build -w client
 
       - name: Upload Pages artifact
