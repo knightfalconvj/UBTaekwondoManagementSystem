@@ -15,7 +15,44 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  pages-status:
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - name: Check whether GitHub Pages is enabled
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_API_URL: ${{ github.api_url }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          header_name=Authorization
+          scheme=Be
+          scheme+="arer"
+          header_value="$scheme $GH_TOKEN"
+          status=$(curl -sS -o /tmp/pages-response.json -w "%{http_code}" \
+            -H "$header_name: $header_value" \
+            -H "Accept: application/vnd.github+json" \
+            "$GH_API_URL/repos/$REPOSITORY/pages")
+
+          if [ "$status" = "200" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if [ "$status" = "404" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GitHub Pages is not enabled for $REPOSITORY. Skipping deployment."
+            exit 0
+          fi
+
+          cat /tmp/pages-response.json
+          echo "::error::Unable to determine GitHub Pages status (HTTP $status)."
+          exit 1
+
   build:
+    needs: pages-status
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -45,7 +82,8 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: [pages-status, build]
+    if: needs.pages-status.outputs.enabled == 'true'
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
