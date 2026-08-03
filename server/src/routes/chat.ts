@@ -117,7 +117,7 @@ chatRouter.patch("/group/read", async (req: RequestWithUser, res, next) => {
 chatRouter.get("/:contactId/messages", async (req: RequestWithUser, res, next) => {
   try {
     const me        = req.authUser!.id;
-    const contactId = req.params.contactId;
+    const contactId = z.string().parse(req.params.contactId);
     const before    = req.query.before as string | undefined;
     const messages  = await prisma.message.findMany({
       where: {
@@ -138,7 +138,7 @@ chatRouter.get("/:contactId/messages", async (req: RequestWithUser, res, next) =
 chatRouter.post("/:contactId", async (req: RequestWithUser, res, next) => {
   try {
     const me        = req.authUser!.id;
-    const contactId = req.params.contactId;
+    const contactId = z.string().parse(req.params.contactId);
     if (contactId === me) { res.status(400).json({ message: "Cannot message yourself" }); return; }
     const contact = await prisma.user.findUnique({ where: { id: contactId, isActive: true } });
     if (!contact) { res.status(404).json({ message: "User not found" }); return; }
@@ -160,7 +160,7 @@ chatRouter.post("/:contactId", async (req: RequestWithUser, res, next) => {
 chatRouter.patch("/:contactId/read", async (req: RequestWithUser, res, next) => {
   try {
     const me        = req.authUser!.id;
-    const contactId = req.params.contactId;
+    const contactId = z.string().parse(req.params.contactId);
     await prisma.message.updateMany({
       where: { senderId: contactId, receiverId: me, isRead: false },
       data:  { isRead: true }
@@ -173,7 +173,7 @@ chatRouter.patch("/:contactId/read", async (req: RequestWithUser, res, next) => 
 chatRouter.get("/:contactId/unread", async (req: RequestWithUser, res, next) => {
   try {
     const me        = req.authUser!.id;
-    const contactId = req.params.contactId;
+    const contactId = z.string().parse(req.params.contactId);
     const count = await prisma.message.count({
       where: { senderId: contactId, receiverId: me, isRead: false }
     });

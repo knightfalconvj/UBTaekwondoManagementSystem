@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: ubtkdmis-api
+    env: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm run start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: JWT_SECRET
+        sync: false
+      - key: CLIENT_ORIGIN
+        value: https://ubtkdmis.github.io
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ubtkdmis-db
+          property: connectionString
+
+databases:
+  - name: ubtkdmis-db
+    plan: free
+    databaseName: ubtkdmis
+    user: ubtkdmis

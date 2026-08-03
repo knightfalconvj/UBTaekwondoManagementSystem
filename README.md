@@ -192,6 +192,43 @@ npm run build
 5. Deploy API (`server/dist/index.js`) to a Node host (Render, Railway, Fly.io, VPS).
 6. Store uploads in persistent storage (cloud object storage recommended).
 
+## Production Deployment (ubtkdmis.github.io)
+
+Frontend is already on GitHub Pages. To make login work publicly, deploy the backend API and point the frontend to it.
+
+1. Create backend on Render using Blueprint
+
+- Open Render Dashboard -> New -> Blueprint
+- Select repository: `ubtkdmis/ubtkdmis.github.io`
+- Render will read `render.yaml` and provision:
+	- Web service: `ubtkdmis-api`
+	- Postgres database: `ubtkdmis-db`
+
+2. Set required backend secret
+
+- In Render service `ubtkdmis-api`, add env var:
+	- `JWT_SECRET` = strong random secret string
+
+3. Get backend public URL
+
+- After deploy, copy the Render web service URL (for example: `https://ubtkdmis-api.onrender.com`)
+
+4. Set frontend API URL for GitHub Pages build
+
+- In GitHub repo `ubtkdmis/ubtkdmis.github.io`:
+	- Settings -> Secrets and variables -> Actions -> Variables
+	- Create variable `VITE_API_URL`
+	- Value: `https://<your-render-service>.onrender.com/api`
+
+5. Redeploy Pages frontend
+
+- Trigger workflow `Deploy to GitHub Pages` from GitHub Actions, or push any commit.
+
+6. Verify live endpoints
+
+- Frontend: `https://ubtkdmis.github.io/`
+- API health: `https://<your-render-service>.onrender.com/api/health`
+
 ## Security Notes
 
 - Passwords are hashed before storage.
