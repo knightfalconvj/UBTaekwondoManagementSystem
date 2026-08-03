@@ -5,8 +5,10 @@ import react from '@vitejs/plugin-react'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const repoName = env.GITHUB_REPOSITORY?.split('/')[1] ?? 'UBTaekwondoManagementSystem'
+  const pagesDomain = env.VITE_GITHUB_PAGES_DOMAIN?.toLowerCase()
   const isUserSiteRepo = repoName.toLowerCase().endsWith('.github.io')
-  const base = env.VITE_BASE_PATH || (env.GITHUB_ACTIONS === 'true' && !isUserSiteRepo ? `/${repoName}/` : '/')
+  const usesRootPagesPath = isUserSiteRepo || pagesDomain?.endsWith('.github.io')
+  const base = env.VITE_BASE_PATH || (env.GITHUB_ACTIONS === 'true' && !usesRootPagesPath ? `/${repoName}/` : '/')
 
   return {
     plugins: [react()],
