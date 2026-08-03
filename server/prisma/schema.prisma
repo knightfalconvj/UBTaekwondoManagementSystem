@@ -1,0 +1,275 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ATHLETE
+  ADMIN
+}
+
+enum EventType {
+  TRAINING
+  TOURNAMENT
+  TEAM_EVENT
+}
+
+enum EventStatus {
+  UPCOMING
+  COMPLETED
+}
+
+enum AbsenceReasonStatus {
+  NONE
+  PENDING
+  VALID
+  INVALID
+}
+
+enum NotificationType {
+  ATTENDANCE_WARNING
+  VERIFICATION_REQUEST
+  VERIFICATION_APPROVED
+  ACCOUNT_CREATED
+  ACCOUNT_DISABLED
+  ATHLETE_PROFILE_UPDATED
+  ATHLETE_CREDENTIALS_UPDATED
+  ATHLETE_PHOTO_UPDATED
+  ATHLETE_ABSENCE_REASON_SUBMITTED
+}
+
+enum AchievementType {
+  GOLD
+  SILVER
+  BRONZE
+  FINALIST
+  QUALIFIER
+}
+
+enum TournamentLevel {
+  PROVINCIAL
+  REGIONAL
+  NATIONAL
+  INTERNATIONAL
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  role          UserRole
+  fullName      String
+  isActive      Boolean  @default(true)
+  profilePhoto  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  athleteProfile AthleteProfile?
+  attendances    Attendance[] @relation("AttendanceUser")
+  reviewedAttendances Attendance[] @relation("AttendanceReasonReviewedBy")
+  createdEvents  Event[] @relation("CreatedBy")
+  adminLogs      AdminActionLog[]
+  resetTokens    PasswordResetToken[]
+  notifications  Notification[]
+  sentMessages     Message[] @relation("MessageSender")
+  receivedMessages Message[] @relation("MessageReceiver")
+  groupMessages           GroupMessage[]         @relation("GroupMessageSender")
+  groupMessageReadStatus  GroupMessageReadStatus?
+  pushSubscriptions       PushSubscription[]
+}
+
+model AthleteProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  studentId        String   @unique
+  contactNumber    String
+  address          String
+  emergencyContact String
+  beltRank         String
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  performanceRecords PerformanceRecord[]
+  achievements      Achievement[]
+  rankingPoints     RankingPoint[]
+  tournamentRosters TournamentRoster[]
+}
+
+model Event {
+  id          String     @id @default(cuid())
+  title       String
+  type        EventType
+  date        DateTime
+  startTime   String
+  endTime     String
+  venue       String
+  remarks     String?
+  status      EventStatus
+  createdById String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  createdBy   User       @relation("CreatedBy", fields: [createdById], references: [id])
+  attendances Attendance[]
+}
+
+model Attendance {
+  id        String   @id @default(cuid())
+  userId    String
+  eventId   String
+  present   Boolean
+  absenceReason String?
+  reasonStatus  AbsenceReasonStatus @default(NONE)
+  reasonReviewedAt DateTime?
+  reasonReviewedById String?
+  coachComment String?
+  warningFlaggedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user      User     @relation("AttendanceUser", fields: [userId], references: [id], onDelete: Cascade)
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  reasonReviewedBy User? @relation("AttendanceReasonReviewedBy", fields: [reasonReviewedById], references: [id])
+
+  @@unique([userId, eventId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  targetId  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Tournament {
+  id        String          @id @default(cuid())
+  name      String
+  level     TournamentLevel
+  date      DateTime
+  venue     String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  rosters   TournamentRoster[]
+}
+
+model TournamentRoster {
+  id                String   @id @default(cuid())
+  tournamentId      String
+  athleteProfileId  String
+  result            String?
+  coachFeedback     String?
+  createdAt         DateTime @default(now())
+
+  tournament        Tournament      @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  athleteProfile    AthleteProfile  @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([tournamentId, athleteProfileId])
+}
+
+model PerformanceRecord {
+  id               String   @id @default(cuid())
+  athleteProfileId String
+  eventName        String
+  eventDate        DateTime
+  finalResult      String
+  coachFeedback    String
+  createdAt        DateTime @default(now())
+
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+}
+
+model Achievement {
+  id               String          @id @default(cuid())
+  athleteProfileId String
+  type             AchievementType
+  eventName        String
+  achievedAt       DateTime
+  createdAt        DateTime @default(now())
+
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+}
+
+model RankingPoint {
+  id               String          @id @default(cuid())
+  athleteProfileId String
+  level            TournamentLevel
+  points           Int
+  season           String
+  createdAt        DateTime @default(now())
+
+  athleteProfile   AthleteProfile @relation(fields: [athleteProfileId], references: [id], onDelete: Cascade)
+}
+
+model AdminActionLog {
+  id          String   @id @default(cuid())
+  adminUserId String
+  action      String
+  targetType  String
+  targetId    String?
+  details     String?
+  createdAt   DateTime @default(now())
+
+  adminUser   User     @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+}
+
+model PasswordResetToken {
+  id         String   @id @default(cuid())
+  userId     String
+  token      String   @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  senderId   String
+  receiverId String
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender     User     @relation("MessageSender",   fields: [senderId],   references: [id], onDelete: Cascade)
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+model GroupMessage {
+  id        String   @id @default(cuid())
+  senderId  String
+  content   String
+  createdAt DateTime @default(now())
+
+  sender    User     @relation("GroupMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model GroupMessageReadStatus {
+  userId     String   @id
+  lastReadAt DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

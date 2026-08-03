@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 180" role="img" aria-labelledby="title desc">
+  <title id="title">UB Taekwondo Team Logo</title>
+  <desc id="desc">Circular team crest logo with UB initials and taekwondo identity.</desc>
+  <defs>
+    <radialGradient id="bg" cx="30%" cy="25%" r="90%">
+      <stop offset="0%" stop-color="#1b4fca"/>
+      <stop offset="58%" stop-color="#0d2d6f"/>
+      <stop offset="100%" stop-color="#081b44"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ffe08c"/>
+      <stop offset="100%" stop-color="#d89b14"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ff5b72"/>
+      <stop offset="100%" stop-color="#d6113f"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#081e46" flood-opacity="0.34"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(10,6)" filter="url(#shadow)">
+    <circle cx="84" cy="84" r="78" fill="url(#bg)"/>
+    <circle cx="84" cy="84" r="68" fill="none" stroke="url(#gold)" stroke-width="5"/>
+    <circle cx="84" cy="84" r="55" fill="rgba(255,255,255,0.08)"/>
+
+    <path d="M45 95 C56 70, 88 60, 117 78" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round"/>
+    <path d="M47 97 C61 78, 86 71, 108 84" fill="none" stroke="url(#red)" stroke-width="3" stroke-linecap="round"/>
+
+    <text x="84" y="91" text-anchor="middle" fill="#ffffff" font-family="'Plus Jakarta Sans', 'Segoe UI', sans-serif" font-size="33" font-weight="800" letter-spacing="1.2">UB</text>
+
+    <path d="M28 84 A56 56 0 0 1 140 84" fill="none" stroke="#f8d778" stroke-width="2" stroke-dasharray="2.4 5" opacity="0.8"/>
+  </g>
+
+  <g transform="translate(188,30)">
+    <text x="0" y="48" fill="#ffffff" font-family="'Plus Jakarta Sans', 'Segoe UI', sans-serif" font-weight="800" font-size="56" letter-spacing="1.2">UB TAEKWONDO TEAM</text>
+    <text x="0" y="88" fill="#f8d778" font-family="'Plus Jakarta Sans', 'Segoe UI', sans-serif" font-weight="700" font-size="20" letter-spacing="1.7">MANAGEMENT INFORMATION SYSTEM</text>
+    <rect x="0" y="100" width="684" height="4" rx="2" fill="url(#red)"/>
+  </g>
+</svg>

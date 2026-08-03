@@ -1,0 +1,30 @@
+{
+  "name": "ub-taekwondo-management-system",
+  "version": "1.0.0",
+  "description": "This is a Management System for UB Taekwondo team of their Attendance, Progress, and Achievements.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npm run dev -w server & npm run dev -w client",
+    "build": "npm run build -w server && npm run build -w client",
+    "lint": "npm run lint -w client",
+    "seed": "npm run seed -w server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/knightfalconvj/UBTaekwondoManagementSystem.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/knightfalconvj/UBTaekwondoManagementSystem/issues"
+  },
+  "homepage": "https://github.com/knightfalconvj/UBTaekwondoManagementSystem#readme",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ]
+}
