@@ -5,7 +5,7 @@ services:
     rootDir: server
     plan: free
     buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: npx prisma migrate deploy && npm run start
+    startCommand: npx prisma migrate deploy && npm run seed && npm run start
     healthCheckPath: /api/health
     envVars:
       - key: NODE_VERSION
