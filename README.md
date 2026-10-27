@@ -194,13 +194,13 @@ npm run build
 
 ## Production Deployment
 
-The frontend is published at `https://knightfalconvj.github.io/UBTaekwondoManagementSystem/`. The Render API uses PostgreSQL migrations under `server/prisma/postgresql`; local development continues to use SQLite migrations under `server/prisma/migrations`.
+The frontend is published at `https://ubtkdmis.github.io/`. The Render API uses PostgreSQL migrations under `server/prisma/postgresql`; local development continues to use SQLite migrations under `server/prisma/migrations`.
 
-1. In Render, create a Blueprint from `knightfalconvj/UBTaekwondoManagementSystem` and use the repository's `render.yaml`. This provisions the `ubtkdmis-api` web service and `ubtkdmis-db` database.
+1. In Render, create a Blueprint from `ubtkdmis/ubtkdmis.github.io` and use the repository's `render.yaml`. This provisions the `ubtkdmis-api` web service and `ubtkdmis-db` database.
 2. Set `JWT_SECRET` to a unique random value of at least 32 characters.
 3. Set `INITIAL_ADMIN_EMAIL`, `INITIAL_ADMIN_NAME`, and `INITIAL_ADMIN_PASSWORD`. The first production start creates this coach account only when no admin exists. Use a unique password of at least 16 characters; development sample accounts are never added in production.
 4. Configure `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM` to enable password reset links. `SMTP_PORT` defaults to 587 and `SMTP_SECURE` defaults to `false`.
-5. If the Render service URL is not `https://ubtkdmis-api.onrender.com`, add a GitHub Actions variable named `VITE_API_URL` in this repository with the value `https://<your-render-service>.onrender.com/api`, then rerun the `Deploy to GitHub Pages` workflow. The frontend defaults to the current `ubtkdmis-api` URL when the variable is absent.
+5. If the Render service URL is not `https://ubtkdmis-api.onrender.com`, add a GitHub Actions variable named `VITE_API_URL` in `ubtkdmis/ubtkdmis.github.io` with the value `https://<your-render-service>.onrender.com/api`, then rerun the `Deploy to GitHub Pages` workflow. The frontend defaults to the current `ubtkdmis-api` URL when the variable is absent.
 
 Verify `https://<your-render-service>.onrender.com/api/health` returns `{"status":"ok"}` and then test registration, coach approval, login, and password reset. Render's service filesystem is not persistent, so profile photo uploads need persistent object storage before they can be relied on in production.
 
