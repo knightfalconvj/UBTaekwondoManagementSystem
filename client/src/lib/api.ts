@@ -3,7 +3,7 @@ import axios from "axios";
 const PROD_API_FALLBACK = "https://ubtkdmis-api.onrender.com/api";
 
 export const API_BASE =
-  import.meta.env.VITE_API_URL ?? (import.meta.env.PROD ? PROD_API_FALLBACK : "/api");
+  import.meta.env.VITE_API_URL?.trim() || (import.meta.env.PROD ? PROD_API_FALLBACK : "/api");
 
 export const api = axios.create({
   baseURL: API_BASE,

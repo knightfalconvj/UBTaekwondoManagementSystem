@@ -1,7 +1,7 @@
 import nodemailer from "nodemailer";
 import { config } from "../config.js";
 
-const isMailerConfigured = Boolean(config.mail.host && config.mail.user && config.mail.password && config.mail.from);
+export const isMailerConfigured = Boolean(config.mail.host && config.mail.user && config.mail.password && config.mail.from);
 
 const transporter = isMailerConfigured
   ? nodemailer.createTransport({
@@ -27,6 +27,24 @@ export async function sendCoachVerificationEmail(recipients: string[], athleteNa
       `Athlete: ${athleteName}`,
       `Email: ${athleteEmail}`,
       "Please review the account in the coach admin panel and verify it when ready."
+    ].join("\n")
+  });
+
+  return true;
+}
+
+export async function sendPasswordResetEmail(recipient: string, resetUrl: string) {
+  if (!transporter) return false;
+
+  await transporter.sendMail({
+    from: config.mail.from,
+    to: recipient,
+    subject: "Reset your UB Taekwondo Management System password",
+    text: [
+      "We received a request to reset your password.",
+      `Reset your password using this link: ${resetUrl}`,
+      "This link expires in 30 minutes.",
+      "If you did not request this, you can ignore this email."
     ].join("\n")
   });
 

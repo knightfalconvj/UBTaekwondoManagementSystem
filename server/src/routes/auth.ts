@@ -7,8 +7,9 @@ import { hashPassword, verifyPassword } from "../utils/password.js";
 import { signAuthToken } from "../utils/jwt.js";
 import { BELT_RANKS } from "../utils/constants.js";
 import { logAdminAction } from "../utils/adminLog.js";
-import { sendCoachVerificationEmail } from "../utils/mailer.js";
+import { isMailerConfigured, sendCoachVerificationEmail, sendPasswordResetEmail } from "../utils/mailer.js";
 import { sendPushToUser } from "../utils/webpush.js";
+import { config } from "../config.js";
 
 const registerSchema = z.object({
   email: z.string().trim().toLowerCase().email(),
@@ -190,9 +191,16 @@ authRouter.post("/login", async (req, res, next) => {
 authRouter.post("/forgot-password", async (req, res, next) => {
   try {
     const { email } = forgotPasswordSchema.parse(req.body);
+    const isProduction = process.env.NODE_ENV === "production";
+
+    if (isProduction && !isMailerConfigured) {
+      res.status(503).json({ message: "Password reset email is not configured." });
+      return;
+    }
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
-      res.json({ message: "If the account exists, a reset token was issued." });
+      res.json({ message: "If the account exists, a password reset link has been sent." });
       return;
     }
 
@@ -205,7 +213,21 @@ authRouter.post("/forgot-password", async (req, res, next) => {
       }
     });
 
-    // For local development we return the token instead of emailing.
+    if (isProduction) {
+      const resetUrl = new URL(`${config.clientBaseUrl.replace(/\/+$/, "")}/reset-password`);
+      resetUrl.searchParams.set("token", token);
+
+      try {
+        await sendPasswordResetEmail(user.email, resetUrl.toString());
+      } catch (error) {
+        await prisma.passwordResetToken.delete({ where: { token } });
+        throw error;
+      }
+
+      res.json({ message: "If the account exists, a password reset link has been sent." });
+      return;
+    }
+
     res.json({ message: "Reset token created", resetToken: token });
   } catch (error) {
     next(error);

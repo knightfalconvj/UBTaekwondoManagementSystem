@@ -4,9 +4,12 @@
     <meta charset="utf-8" />
     <title>Redirecting...</title>
     <script>
-      const path = window.location.pathname.replace(/\/+$|\/$/, '');
-      const base = path.startsWith('/UBTaekwondoManagementSystem/') ? '/UBTaekwondoManagementSystem/' : '/';
-      const redirect = `${base}index.html?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+      const path = window.location.pathname.replace(/\/+$/, '') || '/';
+      const repoBase = '/UBTaekwondoManagementSystem';
+      const hasRepoBase = path === repoBase || path.startsWith(`${repoBase}/`);
+      const base = hasRepoBase ? `${repoBase}/` : '/';
+      const route = hasRepoBase ? path.slice(repoBase.length) || '/' : path;
+      const redirect = `${base}index.html?redirect=${encodeURIComponent(route + window.location.search)}`;
       window.location.replace(redirect);
     </script>
   </head>

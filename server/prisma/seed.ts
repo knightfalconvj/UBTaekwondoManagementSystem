@@ -3,7 +3,7 @@ import { hashPassword } from "../src/utils/password.js";
 
 const prisma = new PrismaClient();
 
-async function main() {
+async function seedDevelopmentAccounts() {
   const adminEmail = "coach.admin@ub.edu.ph";
   const athleteEmail = "athlete.sample@ub.edu.ph";
 
@@ -38,6 +38,39 @@ async function main() {
         }
       }
     });
+  }
+}
+
+async function seedProductionAdmin() {
+  const existingAdmin = await prisma.user.findFirst({ where: { role: "ADMIN" }, select: { id: true } });
+  if (existingAdmin) return;
+
+  const email = process.env.INITIAL_ADMIN_EMAIL?.trim().toLowerCase();
+  const fullName = process.env.INITIAL_ADMIN_NAME?.trim();
+  const password = process.env.INITIAL_ADMIN_PASSWORD;
+
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !fullName || fullName.length < 2 || !password) {
+    throw new Error("Set valid INITIAL_ADMIN_EMAIL, INITIAL_ADMIN_NAME, and INITIAL_ADMIN_PASSWORD values.");
+  }
+  if (password.length < 16) {
+    throw new Error("INITIAL_ADMIN_PASSWORD must be at least 16 characters.");
+  }
+
+  await prisma.user.create({
+    data: {
+      email,
+      passwordHash: await hashPassword(password),
+      role: "ADMIN",
+      fullName
+    }
+  });
+}
+
+async function main() {
+  if (process.env.NODE_ENV === "production") {
+    await seedProductionAdmin();
+  } else {
+    await seedDevelopmentAccounts();
   }
 }
 

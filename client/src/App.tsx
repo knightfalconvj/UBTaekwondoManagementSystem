@@ -32,7 +32,7 @@ function PublicOnly() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <Routes>
           <Route element={<PublicOnly />}>
             <Route path="/login" element={<LoginPage />} />
