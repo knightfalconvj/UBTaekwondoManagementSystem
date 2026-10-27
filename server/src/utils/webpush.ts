@@ -2,11 +2,13 @@ import webpush from "web-push";
 import { config } from "../config.js";
 import { prisma } from "../lib/prisma.js";
 
-webpush.setVapidDetails(
-  config.vapid.subject,
-  config.vapid.publicKey,
-  config.vapid.privateKey
-);
+if (config.vapid.publicKey && config.vapid.privateKey) {
+  webpush.setVapidDetails(
+    config.vapid.subject,
+    config.vapid.publicKey,
+    config.vapid.privateKey
+  );
+}
 
 type PushPayload = {
   title: string;
